@@ -1,5 +1,4 @@
 ﻿using System;
-
 namespace Arena
 {
     internal class Program
@@ -30,7 +29,7 @@ namespace Arena
 
             bool hatSchild = true;
 
-            // --- Gegner (Anpassung laut A5.4: Troll statt Goblin) ---
+            // --- Gegner (Anpassung Troll statt Goblin) ---
             string gegnerName = "Troll";
             int gegnerLebenspunkte = 600;
             int gegnerRuestung = 8;
@@ -213,10 +212,10 @@ namespace Arena
                 }
             }
 
-            // --- Zufall (Aufgabe A5.7: Einmalige Initialisierung vor dem Menü) ---
+            // --- Zufalls generation ---
             Random zufall = new Random();
 
-            // --- Spielmenü (Aufgabe A5.8) ---
+            // --- Das spielmenü  ---
             int wahl;
             do
             {
@@ -230,7 +229,7 @@ namespace Arena
 
                 if (wahl == 1)
                 {
-                    // --- Kampf (Aufgabe A5.4, A5.6 & A5.7) ---
+                    // --- Kampf ---
                     int gegnerLP = gegnerLebenspunkte;
                     int runde = 1;
 
@@ -265,7 +264,7 @@ namespace Arena
                         // Gegenschlag des Gegners (nur wenn er die Angriffe überlebt hat)
                         if (gegnerLP > 0)
                         {
-                            // A5.7: Gegnerschaden als Zufallszahl von 10 bis 30
+                            // A5.7 Zuffal
                             int gegnerSchaden = zufall.Next(10, 31);
                             lebenspunkte = lebenspunkte - gegnerSchaden;
 
@@ -276,7 +275,21 @@ namespace Arena
 
                     }
                 }
-            } while (wahl != 3);
+                else if (wahl == 2)
+                {
+                    if (trankPreis > 0 && gold >= trankPreis)
+                    {
+                        gold = gold - trankPreis;
+                        lebenspunkte = lebenspunkte + 30;
+                        Console.WriteLine($"Getrunken. Lebenspunkte: {lebenspunkte}, Gold: {gold}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Dafür reicht dein Gold nicht.");
+                    }
+                }
+              }
+            while (wahl != 3);
+           } 
         }
     }
-}
