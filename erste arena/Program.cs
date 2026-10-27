@@ -288,8 +288,8 @@ namespace Arena
                         Console.WriteLine("Dafür reicht dein Gold nicht.");
                     }
                 }
-              }
+            }
             while (wahl != 3);
-           } 
-        }
+        } 
     }
+}
