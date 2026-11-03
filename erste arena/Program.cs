@@ -35,7 +35,7 @@ namespace Arena
             int gegnerRuestung = 8;
 
             // --- Waffe ---
-            Console.Write("Waffe (Schwert/Axt/Bogen): ");
+            Console.Write("Waffe (Schwert/Axt/Bogen/Dolch/Hellebarde/Streitkolben/Speer/Großschwert): ");
             string waffenName = Console.ReadLine();
             int waffenBonus;
             bool istFernkampf = false; // Für Aufgabe A5.6 benötigt
@@ -44,7 +44,7 @@ namespace Arena
             {
                 case "Schwert":
                 case "schwert":
-                    waffenBonus = 4;
+                    waffenBonus = 6;
                     break;
                 case "Axt":
                 case "axt":
@@ -54,6 +54,27 @@ namespace Arena
                 case "bogen":
                     waffenBonus = 1;
                     istFernkampf = true; // Bogen aktiviert den Fernkampf
+                    break;
+                case "Dolch":
+                case "dolch":
+                    waffenBonus = 2;
+                    break;
+                case "Hellebarde":
+                case "hellebarde":
+                    waffenBonus = 12;
+                    break;
+                case "Streitkolben":
+                case "streitkolben":
+                    waffenBonus = 18;
+                    break;
+                case "Speer":
+                case "speer":
+                    waffenBonus = 5;
+                    istFernkampf = true;
+                    break;
+                case "Großschwert":
+                case "großschwert":
+                    waffenBonus = 15;
                     break;
                 default:
                     Console.WriteLine("Unbekannte Waffe - du kämpfst mit bloßen Fäusten.");
@@ -290,6 +311,6 @@ namespace Arena
                 }
             }
             while (wahl != 3);
-        } 
+        }
     }
 }
