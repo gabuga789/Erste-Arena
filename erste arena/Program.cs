@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace Arena
 {
     internal class Program
@@ -29,7 +30,7 @@ namespace Arena
 
             bool hatSchild = true;
 
-            // --- Gegner (Anpassung Troll statt Goblin) ---
+            // --- Gegner ---
             string gegnerName = "Troll";
             int gegnerLebenspunkte = 600;
             int gegnerRuestung = 8;
@@ -38,7 +39,7 @@ namespace Arena
             Console.Write("Waffe (Schwert/Axt/Bogen/Dolch/Hellebarde/Streitkolben/Speer/Großschwert): ");
             string waffenName = Console.ReadLine();
             int waffenBonus;
-            bool istFernkampf = false; // Für Aufgabe A5.6 benötigt
+            bool istFernkampf = false;
 
             switch (waffenName)
             {
@@ -53,7 +54,7 @@ namespace Arena
                 case "Bogen":
                 case "bogen":
                     waffenBonus = 1;
-                    istFernkampf = true; // Bogen aktiviert den Fernkampf
+                    istFernkampf = true;
                     break;
                 case "Dolch":
                 case "dolch":
@@ -85,37 +86,18 @@ namespace Arena
 
             int grundschaden = 10;
 
-            // --- Schadensberechnung ---
-            int schaden = (grundschaden + waffenBonus) * staerke - gegnerRuestung;
+            // --- A6.6: Schadensberechnung über Methode ---
+            int schaden = BerechneSchaden(grundschaden, waffenBonus, staerke, gegnerRuestung, istFernkampf);
 
             // --- Vorsprung ---
             int vorsprung = lebenspunkte - gegnerLebenspunkte;
 
-            // --- Ausgabe ---
-            Console.WriteLine();
-            Console.WriteLine("=== HELDENPROFIL ===");
-            Console.WriteLine($"Name:         {heldenName}");
-            Console.WriteLine($"Lebenspunkte: {lebenspunkte}");
-            Console.WriteLine($"Stärke:       {staerke}");
-            Console.WriteLine($"Gold:         {gold}");
-            Console.WriteLine($"Krit-Chance:  {kritischeChance}");
-            Console.WriteLine($"Schild:       {hatSchild}");
+            // --- A6.3 & A6.9: Ausgabe Heldenprofil ---
+            Ueberschrift("HELDENPROFIL");
+            ZeigeHeldenprofil(heldenName, lebenspunkte, staerke, gold, kritischeChance, hatSchild);
 
-            if (lebenspunkte < 20)
-            {
-                Console.WriteLine("Kritisch! Nimm einen Heiltrank.");
-            }
-            else if (lebenspunkte < 60)
-            {
-                Console.WriteLine("Angeschlagen.");
-            }
-            else
-            {
-                Console.WriteLine("Alles im grünen Bereich.");
-            }
-
-            Console.WriteLine();
-            Console.WriteLine("=== GEGNER ===");
+            // --- A6.3: Ausgabe Gegner ---
+            Ueberschrift("GEGNER");
             Console.WriteLine($"Name:         {gegnerName}");
             Console.WriteLine($"Lebenspunkte: {gegnerLebenspunkte}");
             Console.WriteLine($"Rüstung:      {gegnerRuestung}");
@@ -145,9 +127,8 @@ namespace Arena
                 Console.WriteLine("Gleichstand.");
             }
 
-            // --- Händler ---
-            Console.WriteLine();
-            Console.WriteLine("=== HÄNDLER ===");
+            // --- A6.3: Händler ---
+            Ueberschrift("HÄNDLER");
             Console.Write("Was kostet ein Heiltrank? ");
             int trankPreis = int.Parse(Console.ReadLine());
 
@@ -162,9 +143,8 @@ namespace Arena
                 Console.WriteLine($"Du kannst {traenke} Tränke kaufen, {restGold} Gold bleiben übrig.");
             }
 
-            // --- Kampfbilanz ---
-            Console.WriteLine();
-            Console.WriteLine("=== KAMPFBILANZ ===");
+            // --- A6.3: Kampfbilanz ---
+            Ueberschrift("KAMPFBILANZ");
             Console.Write("Bestrittene Kämpfe: ");
             int kaempfe = int.Parse(Console.ReadLine());
 
@@ -184,24 +164,8 @@ namespace Arena
                 Console.WriteLine($"Niederlagen: {niederlagen}");
                 Console.WriteLine($"Siegquote:   {siegquote:F2}");
 
-                char rang;
-
-                if (siegquote >= 0.75)
-                {
-                    rang = 'A';
-                }
-                else if (siegquote >= 0.50)
-                {
-                    rang = 'B';
-                }
-                else if (siegquote >= 0.25)
-                {
-                    rang = 'C';
-                }
-                else
-                {
-                    rang = 'D';
-                }
+                // --- A6.8: Rang über Methode bestimmen ---
+                char rang = BerechneRang(siegquote);
 
                 Console.WriteLine($"Rang:        {rang}");
 
@@ -233,68 +197,30 @@ namespace Arena
                 }
             }
 
-            // --- Zufalls generation ---
+            // --- Zufallsgeneration ---
             Random zufall = new Random();
 
-            // --- Das spielmenü  ---
+            // Anzahl der Angriffe für den Kampf festlegen
+            int angriffe = 1;
+            if (istFernkampf)
+            {
+                angriffe = 2;
+            }
+
+            // --- Das Spielmenü ---
             int wahl;
             do
             {
-                Console.WriteLine();
-                Console.WriteLine("=== WAS WILLST DU TUN? ===");
-                Console.WriteLine("1 = Kämpfen");
-                Console.WriteLine("2 = Heiltrank kaufen");
-                Console.WriteLine("3 = Beenden");
+                // --- A6.1: Menü über Methode anzeigen ---
+                ZeigeMenue();
                 Console.Write("Deine Wahl: ");
                 wahl = int.Parse(Console.ReadLine());
 
                 if (wahl == 1)
                 {
-                    // --- Kampf ---
-                    int gegnerLP = gegnerLebenspunkte;
-                    int runde = 1;
-
-                    while (lebenspunkte > 0 && gegnerLP > 0)
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine($"-- Runde {runde} --");
-
-                        // Anzahl der Angriffe bestimmen (A5.6: Fernkampf schießt zweimal)
-                        int angriffe = 1;
-                        if (istFernkampf)
-                        {
-                            angriffe = 2;
-                        }
-
-                        // Angriffe des Helden ausführen
-                        for (int i = 0; i < angriffe; i++)
-                        {
-                            if (gegnerLP > 0) // Nur angreifen, wenn der Troll noch lebt
-                            {
-                                // A5.7: Schaden schwankt um bis zu 5 nach oben oder unten
-                                int rundenSchaden = schaden + zufall.Next(-5, 6);
-                                gegnerLP = gegnerLP - rundenSchaden;
-
-                                // Negative Lebenspunkte optisch abfangen
-                                if (gegnerLP < 0) gegnerLP = 0;
-
-                                Console.WriteLine($"{heldenName} trifft für {rundenSchaden}. {gegnerName}: {gegnerLP} LP");
-                            }
-                        }
-
-                        // Gegenschlag des Gegners (nur wenn er die Angriffe überlebt hat)
-                        if (gegnerLP > 0)
-                        {
-                            // A5.7 Zuffal
-                            int gegnerSchaden = zufall.Next(10, 31);
-                            lebenspunkte = lebenspunkte - gegnerSchaden;
-
-                            if (lebenspunkte < 0) lebenspunkte = 0;
-
-                            Console.WriteLine($"{gegnerName} trifft für {gegnerSchaden}. {heldenName}: {lebenspunkte} LP");
-                        }
-
-                    }
+                    // --- A6.11: Kampf über Methode ausführen ---
+                    lebenspunkte = Kampf(heldenName, lebenspunkte, schaden, angriffe,
+                                         gegnerName, gegnerLebenspunkte, zufall);
                 }
                 else if (wahl == 2)
                 {
@@ -312,5 +238,57 @@ namespace Arena
             }
             while (wahl != 3);
         }
-    }
-}
+
+        // ==========================================
+        // AB HIER DIE METHODEN AUS MODUL 6
+        // ==========================================
+
+        // A6.1: Menü anzeigen
+        static void ZeigeMenue()
+        {
+            Console.WriteLine();
+            Console.WriteLine("=== WAS WILLST DU TUN? ===");
+            Console.WriteLine("1 = Kämpfen");
+            Console.WriteLine("2 = Heiltrank kaufen");
+            Console.WriteLine("3 = Beenden");
+        }
+
+        // A6.3: Abschnittsüberschriften
+        static void Ueberschrift(string titel)
+        {
+            Console.WriteLine();
+            Console.WriteLine("=== " + titel + " ===");
+        }
+
+        // A6.6: Schadensberechnung
+        static int BerechneSchaden(int grundschaden, int waffenBonus, int staerke,
+                                   int gegnerRuestung, bool istFernkampf)
+        {
+            int abzug = gegnerRuestung;
+            if (istFernkampf)
+            {
+                abzug = gegnerRuestung / 2;
+            }
+            return (grundschaden + waffenBonus) * staerke - abzug;
+        }
+
+        // A6.7: Prüfen, ob jemand besiegt ist
+        static bool IstBesiegt(int lebenspunkte)
+        {
+            return lebenspunkte <= 0;
+        }
+
+        // A6.8: Rang anhand der Siegquote berechnen
+        static char BerechneRang(double siegquote)
+        {
+            if (siegquote >= 0.75)
+            {
+                return 'A';
+            }
+            else if (siegquote >= 0.50)
+            {
+                return 'B';
+            }
+            else if (siegquote >= 0.25)
+            {
+
