@@ -30,7 +30,7 @@ namespace Arena
 
             bool hatSchild = true;
 
-            // --- Gegner ---
+            // --- Gegner (Anpassung Troll statt Goblin) ---
             string gegnerName = "Troll";
             int gegnerLebenspunkte = 600;
             int gegnerRuestung = 8;
@@ -86,17 +86,18 @@ namespace Arena
 
             int grundschaden = 10;
 
-            // --- A6.6: Schadensberechnung über Methode ---
-            int schaden = BerechneSchaden(grundschaden, waffenBonus, staerke, gegnerRuestung, istFernkampf);
+            // --- Schadensberechnung (A6.6) ---
+            int schaden = BerechneSchaden(grundschaden, waffenBonus, staerke,
+                                          gegnerRuestung, istFernkampf);
 
             // --- Vorsprung ---
             int vorsprung = lebenspunkte - gegnerLebenspunkte;
 
-            // --- A6.3 & A6.9: Ausgabe Heldenprofil ---
+            // --- Ausgabe (A6.3 & A6.9) ---
             Ueberschrift("HELDENPROFIL");
-            ZeigeHeldenprofil(heldenName, lebenspunkte, staerke, gold, kritischeChance, hatSchild);
+            ZeigeHeldenprofil(heldenName, lebenspunkte, staerke,
+                              gold, kritischeChance, hatSchild);
 
-            // --- A6.3: Ausgabe Gegner ---
             Ueberschrift("GEGNER");
             Console.WriteLine($"Name:         {gegnerName}");
             Console.WriteLine($"Lebenspunkte: {gegnerLebenspunkte}");
@@ -127,7 +128,7 @@ namespace Arena
                 Console.WriteLine("Gleichstand.");
             }
 
-            // --- A6.3: Händler ---
+            // --- Händler (A6.3) ---
             Ueberschrift("HÄNDLER");
             Console.Write("Was kostet ein Heiltrank? ");
             int trankPreis = int.Parse(Console.ReadLine());
@@ -143,7 +144,7 @@ namespace Arena
                 Console.WriteLine($"Du kannst {traenke} Tränke kaufen, {restGold} Gold bleiben übrig.");
             }
 
-            // --- A6.3: Kampfbilanz ---
+            // --- Kampfbilanz (A6.3 & A6.8) ---
             Ueberschrift("KAMPFBILANZ");
             Console.Write("Bestrittene Kämpfe: ");
             int kaempfe = int.Parse(Console.ReadLine());
@@ -164,7 +165,6 @@ namespace Arena
                 Console.WriteLine($"Niederlagen: {niederlagen}");
                 Console.WriteLine($"Siegquote:   {siegquote:F2}");
 
-                // --- A6.8: Rang über Methode bestimmen ---
                 char rang = BerechneRang(siegquote);
 
                 Console.WriteLine($"Rang:        {rang}");
@@ -197,28 +197,25 @@ namespace Arena
                 }
             }
 
-            // --- Zufallsgeneration ---
+            // --- Zufalls generation ---
             Random zufall = new Random();
 
-            // Anzahl der Angriffe für den Kampf festlegen
             int angriffe = 1;
             if (istFernkampf)
             {
                 angriffe = 2;
             }
 
-            // --- Das Spielmenü ---
+            // --- Das spielmenü ---
             int wahl;
             do
             {
-                // --- A6.1: Menü über Methode anzeigen ---
                 ZeigeMenue();
                 Console.Write("Deine Wahl: ");
                 wahl = int.Parse(Console.ReadLine());
 
                 if (wahl == 1)
                 {
-                    // --- A6.11: Kampf über Methode ausführen ---
                     lebenspunkte = Kampf(heldenName, lebenspunkte, schaden, angriffe,
                                          gegnerName, gegnerLebenspunkte, zufall);
                 }
@@ -239,11 +236,8 @@ namespace Arena
             while (wahl != 3);
         }
 
-        // ==========================================
-        // AB HIER DIE METHODEN AUS MODUL 6
-        // ==========================================
+        // ab hier die Methoden (exakt nach PDF S. 9 - 11)
 
-        // A6.1: Menü anzeigen
         static void ZeigeMenue()
         {
             Console.WriteLine();
@@ -253,32 +247,30 @@ namespace Arena
             Console.WriteLine("3 = Beenden");
         }
 
-        // A6.3: Abschnittsüberschriften
         static void Ueberschrift(string titel)
         {
             Console.WriteLine();
             Console.WriteLine("=== " + titel + " ===");
         }
 
-        // A6.6: Schadensberechnung
         static int BerechneSchaden(int grundschaden, int waffenBonus, int staerke,
                                    int gegnerRuestung, bool istFernkampf)
         {
             int abzug = gegnerRuestung;
+
             if (istFernkampf)
             {
                 abzug = gegnerRuestung / 2;
             }
+
             return (grundschaden + waffenBonus) * staerke - abzug;
         }
 
-        // A6.7: Prüfen, ob jemand besiegt ist
         static bool IstBesiegt(int lebenspunkte)
         {
             return lebenspunkte <= 0;
         }
 
-        // A6.8: Rang anhand der Siegquote berechnen
         static char BerechneRang(double siegquote)
         {
             if (siegquote >= 0.75)
@@ -291,4 +283,23 @@ namespace Arena
             }
             else if (siegquote >= 0.25)
             {
+                return 'C';
+            }
+            else
+            {
+                return 'D';
+            }
+        }
 
+        static void ZeigeHeldenprofil(string heldenName, int lebenspunkte, int staerke,
+                                      int gold, double kritischeChance, bool hatSchild)
+        {
+            Console.WriteLine($"Name:         {heldenName}");
+            Console.WriteLine($"Lebenspunkte: {lebenspunkte}");
+            Console.WriteLine($"Stärke:       {staerke}");
+            Console.WriteLine($"Gold:         {gold}");
+            Console.WriteLine($"Kritische Chance: {kritischeChance:P}");
+            Console.WriteLine($"Schild:       {(hatSchild ? "Ja" : "Nein")}");
+        }
+    }
+}
