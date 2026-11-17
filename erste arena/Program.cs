@@ -38,7 +38,6 @@ namespace Arena
             Console.Write("Waffe (Schwert/Axt/Bogen/Dolch/Hellebarde/Streitkolben/Speer/Großschwert): ");
             string waffenName = Console.ReadLine();
             int waffenBonus;
-            bool istFernkampf = false; // Für Aufgabe A5.6 benötigt
 
             switch (waffenName)
             {
@@ -50,10 +49,9 @@ namespace Arena
                 case "axt":
                     waffenBonus = 10;
                     break;
-                case "Bogen":
+                case "Bogen":           //Fernkampf Waffe
                 case "bogen":
                     waffenBonus = 1;
-                    istFernkampf = true; // Bogen aktiviert den Fernkampf
                     break;
                 case "Dolch":
                 case "dolch":
@@ -69,8 +67,7 @@ namespace Arena
                     break;
                 case "Speer":
                 case "speer":
-                    waffenBonus = 5;
-                    istFernkampf = true;
+                    waffenBonus = 5;    //Fernkampf Waffe
                     break;
                 case "Großschwert":
                 case "großschwert":
@@ -81,19 +78,20 @@ namespace Arena
                     waffenName = "bloßen Fäusten";
                     waffenBonus = 0;
                     break;
-            }
-
-            int grundschaden = 10;
+            };
 
             // --- Schadensberechnung ---
-            int schaden = (grundschaden + waffenBonus) * staerke - gegnerRuestung;
+            bool istFernkampf = waffenName == "Bogen" || waffenName == "Speer";
+            int grundschaden = 10;
+            int schaden = BerechneSchaden(grundschaden, waffenBonus, staerke,
+                            gegnerRuestung, istFernkampf);
+
 
             // --- Vorsprung ---
             int vorsprung = lebenspunkte - gegnerLebenspunkte;
 
             // --- Ausgabe ---
-            Console.WriteLine();
-            Console.WriteLine("=== HELDENPROFIL ===");
+            AusgabenUberschrift("HELD");
             Console.WriteLine($"Name:         {heldenName}");
             Console.WriteLine($"Lebenspunkte: {lebenspunkte}");
             Console.WriteLine($"Stärke:       {staerke}");
@@ -146,8 +144,7 @@ namespace Arena
             }
 
             // --- Händler ---
-            Console.WriteLine();
-            Console.WriteLine("=== HÄNDLER ===");
+            AusgabenUberschrift("HÄNDLER");
             Console.Write("Was kostet ein Heiltrank? ");
             int trankPreis = int.Parse(Console.ReadLine());
 
@@ -163,8 +160,7 @@ namespace Arena
             }
 
             // --- Kampfbilanz ---
-            Console.WriteLine();
-            Console.WriteLine("=== KAMPFBILANZ ===");
+            AusgabenUberschrift("KAMPFBILANZ");
             Console.Write("Bestrittene Kämpfe: ");
             int kaempfe = int.Parse(Console.ReadLine());
 
@@ -240,12 +236,7 @@ namespace Arena
             int wahl;
             do
             {
-                Console.WriteLine();
-                Console.WriteLine("=== WAS WILLST DU TUN? ===");
-                Console.WriteLine("1 = Kämpfen");
-                Console.WriteLine("2 = Heiltrank kaufen");
-                Console.WriteLine("3 = Beenden");
-                Console.Write("Deine Wahl: ");
+                ZeigeMenue();
                 wahl = int.Parse(Console.ReadLine());
 
                 if (wahl == 1)
@@ -311,6 +302,32 @@ namespace Arena
                 }
             }
             while (wahl != 3);
+        }
+        static void ZeigeMenue()
+        {
+            AusgabenUberschrift("WAS WILLST DU TUN?");
+            Console.WriteLine("1 = Kämpfen");
+            Console.WriteLine("2 = Heiltrank kaufen");
+            Console.WriteLine("3 = Beenden");
+            Console.Write("Deine Wahl: ");
+        }
+        static string AusgabenUberschrift(string uberschrift)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"=== {uberschrift} ===");
+            return uberschrift;
+        }
+        static int  BerechneSchaden(int grundschaden, int waffenBonus, int staerke,
+                           int gegnerRuestung, bool istFernkampf)
+        {
+
+            int ruestungsAbzug = gegnerRuestung;
+
+            if (istFernkampf)
+            {
+                ruestungsAbzug = gegnerRuestung / 2;
+            }
+            return (grundschaden + waffenBonus) * staerke - gegnerRuestung;
         }
     }
 }
