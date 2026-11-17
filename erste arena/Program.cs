@@ -31,7 +31,7 @@ namespace Arena
 
             // --- Gegner (Anpassung Troll statt Goblin) ---
             string gegnerName = "Troll";
-            int gegnerLebenspunkte = 600;
+            int gegnerLebenspunkte = 1200;
             int gegnerRuestung = 8;
 
             // --- Waffe ---
@@ -43,7 +43,7 @@ namespace Arena
             {
                 case "Schwert":
                 case "schwert":
-                    waffenBonus = 6;
+                    waffenBonus = 8;
                     break;
                 case "Axt":
                 case "axt":
@@ -51,11 +51,11 @@ namespace Arena
                     break;
                 case "Bogen":           //Fernkampf Waffe
                 case "bogen":
-                    waffenBonus = 1;
+                    waffenBonus = 3;
                     break;
                 case "Dolch":
                 case "dolch":
-                    waffenBonus = 2;
+                    waffenBonus = 4;
                     break;
                 case "Hellebarde":
                 case "hellebarde":
@@ -67,7 +67,7 @@ namespace Arena
                     break;
                 case "Speer":
                 case "speer":
-                    waffenBonus = 5;    //Fernkampf Waffe
+                    waffenBonus = 7;    //Fernkampf Waffe
                     break;
                 case "Großschwert":
                 case "großschwert":
@@ -78,7 +78,8 @@ namespace Arena
                     waffenName = "bloßen Fäusten";
                     waffenBonus = 0;
                     break;
-            };
+            }
+            ;
 
             // --- Schadensberechnung ---
             bool istFernkampf = waffenName == "Bogen" || waffenName == "Speer";
@@ -90,27 +91,10 @@ namespace Arena
             // --- Vorsprung ---
             int vorsprung = lebenspunkte - gegnerLebenspunkte;
 
-            // --- Ausgabe ---
+            // --- Ausgabe/Helden Profil ---
             AusgabenUberschrift("HELD");
-            Console.WriteLine($"Name:         {heldenName}");
-            Console.WriteLine($"Lebenspunkte: {lebenspunkte}");
-            Console.WriteLine($"Stärke:       {staerke}");
-            Console.WriteLine($"Gold:         {gold}");
-            Console.WriteLine($"Krit-Chance:  {kritischeChance}");
-            Console.WriteLine($"Schild:       {hatSchild}");
-
-            if (lebenspunkte < 20)
-            {
-                Console.WriteLine("Kritisch! Nimm einen Heiltrank.");
-            }
-            else if (lebenspunkte < 60)
-            {
-                Console.WriteLine("Angeschlagen.");
-            }
-            else
-            {
-                Console.WriteLine("Alles im grünen Bereich.");
-            }
+            ZeigeHeldenprofil(heldenName, lebenspunkte, staerke,
+                               gold, kritischeChance, hatSchild);
 
             Console.WriteLine();
             Console.WriteLine("=== GEGNER ===");
@@ -180,24 +164,8 @@ namespace Arena
                 Console.WriteLine($"Niederlagen: {niederlagen}");
                 Console.WriteLine($"Siegquote:   {siegquote:F2}");
 
-                char rang;
 
-                if (siegquote >= 0.75)
-                {
-                    rang = 'A';
-                }
-                else if (siegquote >= 0.50)
-                {
-                    rang = 'B';
-                }
-                else if (siegquote >= 0.25)
-                {
-                    rang = 'C';
-                }
-                else
-                {
-                    rang = 'D';
-                }
+                char rang = BerechneRang(siegquote);
 
                 Console.WriteLine($"Rang:        {rang}");
 
@@ -245,7 +213,7 @@ namespace Arena
                     int gegnerLP = gegnerLebenspunkte;
                     int runde = 1;
 
-                    while (lebenspunkte > 0 && gegnerLP > 0)
+                    while (!IstBesiegt(lebenspunkte) && gegnerLP > 0)
                     {
                         Console.WriteLine();
                         Console.WriteLine($"-- Runde {runde} --");
@@ -317,8 +285,7 @@ namespace Arena
             Console.WriteLine($"=== {uberschrift} ===");
             return uberschrift;
         }
-        static int  BerechneSchaden(int grundschaden, int waffenBonus, int staerke,
-                           int gegnerRuestung, bool istFernkampf)
+        static int BerechneSchaden(int grundschaden, int waffenBonus, int staerke, int gegnerRuestung, bool istFernkampf)
         {
 
             int ruestungsAbzug = gegnerRuestung;
@@ -328,6 +295,52 @@ namespace Arena
                 ruestungsAbzug = gegnerRuestung / 2;
             }
             return (grundschaden + waffenBonus) * staerke - gegnerRuestung;
+        }
+        static bool IstBesiegt(int lebenspunkte)
+        {
+            return lebenspunkte <= 0;
+        }
+        static char BerechneRang(double siegquote)
+        {
+            if (siegquote >= 0.75)
+            {
+                return 'A';
+            }
+            else if (siegquote >= 0.50)
+            {
+                return 'B';
+            }
+            else if (siegquote >= 0.25)
+            {
+                return 'C';
+            }
+            else
+            {
+                return 'D';
+            }
+        }
+        static void ZeigeHeldenprofil(string heldenName, int lebenspunkte, int staerke,
+                              int gold, double kritischeChance, bool hatSchild)
+        {
+            Console.WriteLine($"Name:         {heldenName}");
+            Console.WriteLine($"Lebenspunkte: {lebenspunkte}");
+            Console.WriteLine($"Stärke:       {staerke}");
+            Console.WriteLine($"Gold:         {gold}");
+            Console.WriteLine($"Krit-Chance:  {kritischeChance}");
+            Console.WriteLine($"Schild:       {hatSchild}");
+
+            if (lebenspunkte < 20)
+            {
+                Console.WriteLine("Kritisch! Nimm einen Heiltrank.");
+            }
+            else if (lebenspunkte < 60)
+            {
+                Console.WriteLine("Angeschlagen.");
+            }
+            else
+            {
+                Console.WriteLine("Alles im grünen Bereich.");
+            }
         }
     }
 }
