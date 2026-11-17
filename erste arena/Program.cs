@@ -79,7 +79,6 @@ namespace Arena
                     waffenBonus = 0;
                     break;
             }
-            ;
 
             // --- Schadensberechnung ---
             bool istFernkampf = waffenName == "Bogen" || waffenName == "Speer";
@@ -87,6 +86,11 @@ namespace Arena
             int schaden = BerechneSchaden(grundschaden, waffenBonus, staerke,
                             gegnerRuestung, istFernkampf);
 
+            int angriffe = 1;
+            if (istFernkampf)
+            {
+                angriffe = 2;
+            }
 
             // --- Vorsprung ---
             int vorsprung = lebenspunkte - gegnerLebenspunkte;
@@ -209,51 +213,9 @@ namespace Arena
 
                 if (wahl == 1)
                 {
-                    // --- Kampf ---
-                    int gegnerLP = gegnerLebenspunkte;
-                    int runde = 1;
-
-                    while (!IstBesiegt(lebenspunkte) && gegnerLP > 0)
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine($"-- Runde {runde} --");
-
-                        // Anzahl der Angriffe bestimmen (A5.6: Fernkampf schießt zweimal)
-                        int angriffe = 1;
-                        if (istFernkampf)
-                        {
-                            angriffe = 2;
-                        }
-
-                        // Angriffe des Helden ausführen
-                        for (int i = 0; i < angriffe; i++)
-                        {
-                            if (gegnerLP > 0) // Nur angreifen, wenn der Troll noch lebt
-                            {
-                                // A5.7: Schaden schwankt um bis zu 5 nach oben oder unten
-                                int rundenSchaden = schaden + zufall.Next(-5, 6);
-                                gegnerLP = gegnerLP - rundenSchaden;
-
-                                // Negative Lebenspunkte optisch abfangen
-                                if (gegnerLP < 0) gegnerLP = 0;
-
-                                Console.WriteLine($"{heldenName} trifft für {rundenSchaden}. {gegnerName}: {gegnerLP} LP");
-                            }
-                        }
-
-                        // Gegenschlag des Gegners (nur wenn er die Angriffe überlebt hat)
-                        if (gegnerLP > 0)
-                        {
-                            // A5.7 Zuffal
-                            int gegnerSchaden = zufall.Next(10, 31);
-                            lebenspunkte = lebenspunkte - gegnerSchaden;
-
-                            if (lebenspunkte < 0) lebenspunkte = 0;
-
-                            Console.WriteLine($"{gegnerName} trifft für {gegnerSchaden}. {heldenName}: {lebenspunkte} LP");
-                        }
-
-                    }
+                   Console.WriteLine("===Kampf===");
+                   Kampf(heldenName, lebenspunkte, schaden, angriffe, gegnerName, gegnerLebenspunkte, zufall);
+                   lebenspunkte = Kampf(heldenName, lebenspunkte, schaden, angriffe, gegnerName, gegnerLebenspunkte, zufall);
                 }
                 else if (wahl == 2)
                 {
@@ -341,6 +303,47 @@ namespace Arena
             {
                 Console.WriteLine("Alles im grünen Bereich.");
             }
+        }
+        static int Kampf(string heldenName, int lebenspunkte, int schaden, int angriffe,
+                 string gegnerName, int gegnerLebenspunkte, Random zufall)
+        {
+            int gegnerLP = gegnerLebenspunkte;
+            int runde = 1;
+
+            while (!IstBesiegt(lebenspunkte) && !IstBesiegt(gegnerLP))
+            {
+                Console.WriteLine();
+                Console.WriteLine($"-- Runde {runde} --");
+
+                for (int i = 1; i <= angriffe; i++)
+                {
+                    int rundenSchaden = schaden + zufall.Next(-5, 6);
+                    gegnerLP -= rundenSchaden;
+                    Console.WriteLine($"{heldenName} trifft für {rundenSchaden}. {gegnerName}: {gegnerLP} LP");
+                }
+
+                if (!IstBesiegt(gegnerLP))
+                {
+                    int gegnerSchaden = zufall.Next(10, 31);
+                    lebenspunkte -= gegnerSchaden;
+                    Console.WriteLine($"{gegnerName} trifft für {gegnerSchaden} LP. {heldenName}: {lebenspunkte} LP");
+                }
+
+                runde = runde+1;
+            }
+
+            Console.WriteLine();
+
+            if (IstBesiegt(lebenspunkte))
+            {
+                Console.WriteLine($"{heldenName} ist besiegt.");
+            }
+            else
+            {
+                Console.WriteLine($"{gegnerName} ist besiegt!");
+            }
+
+            return lebenspunkte;
         }
     }
 }
